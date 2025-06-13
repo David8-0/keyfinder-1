@@ -13,7 +13,7 @@ import PropertyCardInList from "./PropertyCardInList";
 export default function PropertyList() {
   const dispatch = useDispatch();
   const properties = useSelector((state) => state.project.properties);
-  const loading = useSelector((state) => state.project.loading);
+  const loading = useSelector((state) => state.project.loading); //* hena bn7ded al data aly 3yzen n3mlaha select from store
   const user = useSelector((state) => state.auth.user);
 
   const [searchValue, setSearchValue] = useState("");
@@ -29,7 +29,7 @@ export default function PropertyList() {
 
   const fetchProperties = async () => {
     try {
-      dispatch(setLoading(true));
+      dispatch(setLoading(true)); //* 7tet fe slice bnta3t project key asmo loading 5let value true
       const response = await getProperties({ 
         all: !selectedProperty && !selectedArea && !selectedPrice && !searchValue,
         key: searchValue || undefined,
@@ -37,12 +37,12 @@ export default function PropertyList() {
         areaRange: selectedArea || undefined,
         priceRange: selectedPrice || undefined
       });
-      dispatch(setPropertiesList(response.data.data.properties));
+      dispatch(setPropertiesList(response.data.data.properties)); //* sety projects list in store
     } catch (error) {
       dispatch(setProjectError(error.message));
       console.error('Error fetching properties:', error);
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setLoading(false)); //* 7tet fe slice bnta3t project key asmo loading 5let value false
     }
   };
 
