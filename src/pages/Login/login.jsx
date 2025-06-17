@@ -44,7 +44,9 @@ export default function SignIn() {
       }));
 
       if (userRole === roletypes.admin) {
-        console.log("Admin logged in");
+        const errorMessage = "Invalid email or password. Please try again.";
+        dispatch(setError(errorMessage));
+        setErrMessage(errorMessage);
       } else if (userRole === roletypes.broker) {
         navigate('/broker-home');
       } else if (userRole === roletypes.buyer) {
