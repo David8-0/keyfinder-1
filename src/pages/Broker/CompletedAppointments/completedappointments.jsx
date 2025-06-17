@@ -22,14 +22,12 @@ export default function CompletedAppointments() {
   const fetchAppointments = async () => {
     try {
       const response = await getMyAppointments();
-      console.log("Broker Appointments:", response.data.data);
       
       // Filter appointments to show only 'completed' status
       const filteredAppointments = response.data.data.filter(
         appointment => appointment.status === 'completed'
       );
       
-      console.log("Completed Appointments:", filteredAppointments);
       setAppointments(filteredAppointments);
     } catch (error) {
       console.error("Error fetching appointments:", error);

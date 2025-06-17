@@ -27,7 +27,6 @@ export default function MyAppointments() {
   const fetchAppointments = async () => {
     try {
       const response = await getMyAppointments();
-      console.log("Appointments:", response.data.data);
       setAppointments(response.data.data);
     } catch (error) {
       console.error("Error fetching appointments:", error);

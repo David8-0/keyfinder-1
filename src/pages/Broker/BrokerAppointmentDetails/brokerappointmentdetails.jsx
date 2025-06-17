@@ -43,7 +43,6 @@ export default function BrokerAppointmentDetail() {
 
   useEffect(() => {
     if (feedback) {
-      console.log('Feedback changed to:', feedback);
       
       const handleFeedbackAction = async () => {
         if (feedback === 'liked') {

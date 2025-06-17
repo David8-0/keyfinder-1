@@ -44,7 +44,6 @@ export default function Schedule() {
       try {
         const response = await getUsersList({role: 'broker'});
         // Expecting response.data to be an array of users
-        console.log(response.data.data);
         dispatch(setBrokers(response.data.data));
       } catch (err) {
         // Optionally handle error
@@ -134,7 +133,6 @@ export default function Schedule() {
         });
       }
     } catch (error) {
-      console.log("error:", error);
       Swal.fire({
         icon: "error",
         title: "Error",

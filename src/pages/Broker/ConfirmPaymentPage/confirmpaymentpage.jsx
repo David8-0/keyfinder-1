@@ -25,14 +25,12 @@ export default function ConfirmPaymentPage() {
   const fetchAppointments = async () => {
     try {
       const response = await getMyAppointments();
-      console.log("Broker Appointments:", response.data.data);
       
       // Filter appointments to show only 'awaiting_payment_confirmation' status
       const filteredAppointments = response.data.data.filter(appointment => 
         appointment.status === 'awaiting_payment_confirmation'
       );
       
-      console.log("Filtered Payment Appointments:", filteredAppointments);
       setAppointments(filteredAppointments);
     } catch (error) {
       console.error("Error fetching appointments:", error);

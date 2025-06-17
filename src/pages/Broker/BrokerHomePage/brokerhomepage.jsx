@@ -24,14 +24,12 @@ export default function BrokerHomePage() {
   const fetchAppointments = async () => {
     try {
       const response = await getMyAppointments();
-      console.log("Broker Appointments:", response.data.data);
       
       // Filter appointments to show only 'scheduled' or 'awaiting_payment' statuses
       const filteredAppointments = response.data.data.filter(appointment => 
         appointment.status === 'scheduled' || appointment.status === 'awaiting_payment'
       );
       
-      console.log("Filtered Appointments:", filteredAppointments);
       setAppointments(filteredAppointments);
     } catch (error) {
       console.error("Error fetching appointments:", error);

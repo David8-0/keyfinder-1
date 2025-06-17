@@ -13,7 +13,6 @@ export default function ProjectShowcase() {
   const loading = useSelector((state) => state.project.loading);
   const [coverImageError, setCoverImageError] = useState(!projectDetails?.image);
 
-  console.log('Project ID from params:', id);
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -35,9 +34,6 @@ export default function ProjectShowcase() {
     fetchProjectDetails();
   }, [id, dispatch]);
 
-  useEffect(() => {
-    console.log('Project Details updated:', projectDetails);
-  }, [projectDetails]);
 
   const handleCoverImageError = () => {
     setCoverImageError(true);

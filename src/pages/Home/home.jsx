@@ -74,13 +74,6 @@ export default function Home() {
     fetchProperties();
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log('Projects updated:', projects);
-  }, [projects]);
-
-  useEffect(() => {
-    console.log('Properties updated:', properties);
-  }, [properties]);
 
   const developers = [
     { img: PalmHillsDev, name: "Palm Hills Developments" },
