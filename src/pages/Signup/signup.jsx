@@ -1,9 +1,10 @@
 // src/components/AuthFlow.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaHome, FaTimes } from "react-icons/fa";
+import { FaArrowLeft, FaHome, FaTimes, FaPlus } from "react-icons/fa";
 import backgroundImg from "../../assets/Login/login.svg";
 import { signup } from "../../network/auth.js";
+import { uploadImages } from "../../network/images.js";
 
 const roletypes = {
   buyer: "buyer",
@@ -18,6 +19,8 @@ export default function AuthFlow() {
   const [brokerNewPass, setBrokerNewPass] = useState("");
   const [brokerConfirmPass, setBrokerConfirmPass] = useState("");
   const [errMessage, setErrMessage] = useState("");
+  const [avatar, setAvatar] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +29,16 @@ export default function AuthFlow() {
     //else setStep("select");
     setStep("buyer");
   }, [queryStep]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatar(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -53,31 +66,29 @@ export default function AuthFlow() {
       return;
     }
 
-    // Log the payload for debugging
-    console.log('Signup payload:', {
-      username,
-      email,
-      password,
-      confirmPassword,
-      phone,
-      role: selectedRole
-    });
+    // Validate image
+    if (!avatarFile) {
+      setErrMessage("Please add a profile photo");
+      return;
+    }
 
     try {
+      // First upload the image
+      const uploadResp = await uploadImages({ images: [avatarFile], type: "user" });
+      const imageUrl = uploadResp.data.images;
+
+      // Then proceed with signup
       const response = await signup({
         username,
         email,
         password,
         confirmPassword,
         phone,
-        role: selectedRole
+        role: selectedRole,
+        image: imageUrl
       });
 
-      // Log the response for debugging
-      console.log('Signup response:', response);
-
       if (response?.data?.success) {
-        // After successful signup, navigate to login
         navigate('/login');
       } else {
         const errorMsg = response?.data?.message || "Signup failed. Please try again.";
@@ -91,7 +102,6 @@ export default function AuthFlow() {
         status: err.response?.status
       });
       
-      // More specific error messages based on the error
       if (err.response?.status === 400) {
         setErrMessage("Invalid input. Please check your information.");
       } else if (err.response?.status === 409) {
@@ -185,6 +195,30 @@ export default function AuthFlow() {
             )}
 
             <form onSubmit={handleSignup}>
+              {/* Avatar Upload */}
+              <div className="mb-6 flex justify-center">
+                <label className="relative h-24 w-24 rounded-lg bg-white border-2 border-dashed border-gray-400 cursor-pointer overflow-hidden flex items-center justify-center">
+                  {avatar ? (
+                    <img
+                      src={avatar}
+                      alt="avatar"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center text-gray-500">
+                      <FaPlus size={24} />
+                      <span className="text-[10px]">Add Photo</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </label>
+              </div>
+
               <label className="block mb-1 text-sm">Username</label>
               <input 
                 name="username"

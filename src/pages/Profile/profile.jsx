@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setCredentials } from "../../store/authSlice";
 import { updateLoggedInUser } from "../../network/auth";
+import { uploadImages } from "../../network/images";
 import Swal from "sweetalert2";
 
 // Images
@@ -48,6 +49,9 @@ export default function Profile() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [avatar, setAvatar] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [imageChanged, setImageChanged] = useState(false);
 
   // Initialize form with user data
   useEffect(() => {
@@ -60,6 +64,10 @@ export default function Profile() {
         newPassword: "",
         confirmNewPassword: ""
       });
+      // Set initial avatar if it exists
+      if (authUser.image) {
+        setAvatar(authUser.image);
+      }
     }
   }, [authUser]);
 
@@ -71,11 +79,19 @@ export default function Profile() {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setImageChanged(true);
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatar(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Log form data before submission
-    console.log("Form data before submission:", formData);
     
     setIsSubmitting(true);
     try {
@@ -92,9 +108,20 @@ export default function Profile() {
         payload.confirmNewPassword = formData.confirmNewPassword;
       }
 
+      // Handle image upload if changed
+      if (imageChanged && avatarFile) {
+        try {
+          const uploadResp = await uploadImages({ images: [avatarFile], type: "user" });
+          payload.image = uploadResp.data.images;
+        } catch (error) {
+          throw new Error("Failed to upload image. Please try again.");
+        }
+      } else {
+        // Keep existing image if not changed
+        payload.image = authUser.image;
+      }
 
       const response = await updateLoggedInUser(payload);
-
 
       // Only update the UI if the update was successful
       if (response.data.success) {
@@ -112,16 +139,17 @@ export default function Profile() {
           confirmButtonColor: "#002855",
         });
 
-        // Reset password fields after successful update
+        // Reset password fields and image change state after successful update
         setFormData(prev => ({
           ...prev,
           currentPassword: "",
           newPassword: "",
           confirmNewPassword: ""
         }));
+        setImageChanged(false);
+        setAvatarFile(null);
       }
     } catch (error) {
-      // Only show error message, don't modify any state
       await Swal.fire({
         icon: "error",
         title: "Error",
@@ -158,6 +186,30 @@ export default function Profile() {
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Avatar Upload */}
+          <div className="mb-6 flex justify-center">
+            <label className="relative h-24 w-24 rounded-lg bg-white border-2 border-dashed border-gray-400 cursor-pointer overflow-hidden flex items-center justify-center">
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt="avatar"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center text-gray-500">
+                  <Plus size={24} />
+                  <span className="text-[10px]">Add Photo</span>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </label>
+          </div>
+
           <InputField
             label="Username"
             name="username"
